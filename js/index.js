@@ -3,12 +3,14 @@
 
 
 $(function() {
-    init();
+    inits();
 });
 
-function init(){
-
+function inits(){
+    coSystem.init('#cosystem');
 }
+
+
 
 
 
