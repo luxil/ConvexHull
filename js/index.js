@@ -3,11 +3,17 @@
 
 
 $(function() {
-    inits();
+    init();
 });
 
-function inits(){
-    coSystem.init('#cosystem');
+function init(){
+    fileLoader.init('#fileLoader', loadCoSystem);
+    coSystem.init('#coSystem');
+}
+
+function loadCoSystem(txtString) {
+    console.log("test");
+    $('#status').text(txtString);
 }
 
 
