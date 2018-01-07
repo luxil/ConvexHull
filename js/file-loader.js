@@ -36,15 +36,15 @@ function makeFileLoader() {
             id: 'drop'
         }).appendTo(divCon);
 
-        $('<span/>', {
-            class: 'glyphicon glyphicon-cloud-upload cloud',
-            id: 'browse'
-        }).appendTo(dropdiv);
+        // $('<span/>', {
+        //     class: 'glyphicon glyphicon-cloud-upload cloud',
+        //     id: 'browse'
+        // }).appendTo(dropdiv);
 
-        $('<input/>', {
-            id: 'fileBox',
-            type: 'file'
-        }).appendTo(divCon);
+        // $('<input/>', {
+        //     id: 'fileBox',
+        //     type: 'file'
+        // }).appendTo(divCon);
 
         $('<div/>', {
             class: 'msg-drop'
@@ -59,11 +59,11 @@ function makeFileLoader() {
     function loadDragAndDropFunctions() {
         //code for drag and drop
         //https://www.htmlgoodies.com/html5/javascript/drag-files-into-the-browser-from-the-desktop-HTML5.html
-        $(window).load(function(){
-            $('#drop').click(function(){
-                $('#fileBox').trigger('click');
-            });
-        });
+        // $(window).load(function(){
+        //     // $('#drop').click(function(){
+        //     //     $('#fileBox').trigger('click');
+        //     // });
+        // });
 
         if (window.FileReader) {
             var drop;

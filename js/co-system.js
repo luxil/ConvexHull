@@ -8,6 +8,13 @@ function makeCoSystem() {
     var selector;
     var svg;
 
+    const MIN = -2147483648;
+    const MAX = 2147483647;
+    const radius = 0.6;
+
+    var points;
+    var sample;
+
     //variables for a flexible coordinate system
     var minX;
     var minY;
@@ -19,15 +26,6 @@ function makeCoSystem() {
     var bPositiveAndNegativeYAxis;
     var rectLength;
     var maxRange;
-
-    const MIN = -2147483648;
-    const MAX = 2147483647;
-
-    var points;
-    var sample;
-
-    var radius = 0.6;
-
 
     function init(sl) {
         element = $(sl);
@@ -54,7 +52,7 @@ function makeCoSystem() {
             minY = Math.min(minY, arr[i+1]);
         }
 
-        createCanvas(updateGraph);
+        createCanvas();
     }
 
     function createCanvas(cb) {
@@ -74,48 +72,25 @@ function makeCoSystem() {
         else                            yRange = Math.abs(maxY - minY);
         maxRange = Math.max(xRange, yRange);
 
+        var bord = rectLength*0.1;
+
 
         var scaleX = d3.scale.linear()
             .domain([minX, minX+maxRange])
-            .range([0, rectLength]);
+            .range([bord, rectLength-bord]);
 
         var scaleY = d3.scale.linear()
             .domain([minY, minY+maxRange])
-            .range([0, rectLength]);
+            .range([bord, rectLength-bord]);
+
 
         $(selector).empty();
         svg = d3.select(selector).append("svg")
             .attr("id", "svg")
-            .style("max-height", relHeight*0.95)
-            .style("max-width", relWidth*0.95)
-            // .attr("width", scaleX(xRange)*1.1)
-            // .attr("height", scaleY(yRange)*1.1)
-            .attr("viewBox", "0 0 " + (scaleX(maxX)) + " " + (scaleY(maxY)))
-        ;
-        
-        var borderPath = svg.append("rect")
-            .attr("x", 0)
-            .attr("y", 0)
-            .attr("width", 100 + "%")
-            .attr("height", 100 + "%")
-            .style("stroke", "#373737")
-            .style("fill", "none")
-            .style("stroke-width", 1)
+            .attr("viewBox", "0 0 " + (scaleX(maxX)+bord) + " " + (scaleY(maxY)+bord))
         ;
 
         sample = svg.selectAll(".sample-node");
-        cb();
-    }
-
-    function updateGraph() {
-        var scaleX = d3.scale.linear()
-            .domain([minX, minX+maxRange])
-            .range([0, rectLength]);
-
-        var scaleY = d3.scale.linear()
-            .domain([minY, minY+maxRange])
-            .range([0, rectLength]);
-
         sample = sample.data(points);
 
         sample.enter().append("circle")
@@ -123,7 +98,7 @@ function makeCoSystem() {
             .attr("r", radius+"%")
             .attr("transform", function(d) {
                 var x=scaleX(parseInt(d.x));
-                var y=scaleY(parseInt(d.y));
+                var y=scaleY(maxY)+bord - scaleY(parseInt(d.y));
 
                 return "translate(" + x + "," + y + ")"
             })
@@ -136,6 +111,7 @@ function makeCoSystem() {
             })
             .style("cursor", "pointer");
         sample.exit().remove();
+        cb();
     }
 
     return {
