@@ -20,12 +20,9 @@ function makeCoSystem() {
     var minY;
     var maxX;
     var maxY;
-    //variable to check whether there should be a negative and postive x-axis
-    var bPositiveAndNegativeXAxis;
-    //variable to check whether there should be a negative and postive y-axis
-    var bPositiveAndNegativeYAxis;
-    var rectLength;
-    var maxRange;
+
+    var scaleX;
+    var scaleY;
 
     function init(sl) {
         element = $(sl);
@@ -55,34 +52,26 @@ function makeCoSystem() {
         createCanvas();
     }
 
-    function createCanvas(cb) {
+    function createCanvas() {
+        //variable to check whether there should be a negative and postive x-axis
+        var bPositiveAndNegativeXAxis = (maxX*minX < 0);
+        //variable to check whether there should be a negative and postive y-axis
+        var bPositiveAndNegativeYAxis = (maxY*minY < 0);
         var relWidth = (window.innerWidth ? window.innerWidth : $(window).width())/10*9;
         var relHeight = (window.innerHeight ? window.innerHeight : $(window).height())/10*9;
-        rectLength = Math.min(relHeight, relWidth);
-
-        bPositiveAndNegativeXAxis = (maxX*minX < 0);
-        bPositiveAndNegativeYAxis = (maxY*minY < 0);
-
-        var xRange = 0;
-        var yRange = 0;
-        if(bPositiveAndNegativeXAxis)   xRange = maxX + Math.abs(minX);
-        else                            xRange = Math.abs(maxX - minX);
-
-        if(bPositiveAndNegativeYAxis)   yRange = maxY + Math.abs(minY);
-        else                            yRange = Math.abs(maxY - minY);
-        maxRange = Math.max(xRange, yRange);
-
+        var rectLength = Math.min(relHeight, relWidth);
         var bord = rectLength*0.1;
 
+        var xRange = 0;
+        if(bPositiveAndNegativeXAxis)   xRange = maxX + Math.abs(minX);
+        else                            xRange = Math.abs(maxX - minX);
+        var yRange = 0;
+        if(bPositiveAndNegativeYAxis)   yRange = maxY + Math.abs(minY);
+        else                            yRange = Math.abs(maxY - minY);
+        var maxRange = Math.max(xRange, yRange);
 
-        var scaleX = d3.scale.linear()
-            .domain([minX, minX+maxRange])
-            .range([bord, rectLength-bord]);
-
-        var scaleY = d3.scale.linear()
-            .domain([minY, minY+maxRange])
-            .range([bord, rectLength-bord]);
-
+        scaleX = d3.scale.linear().domain([minX, minX+maxRange]).range([bord, rectLength-bord]);
+        scaleY = d3.scale.linear().domain([minY, minY+maxRange]).range([bord, rectLength-bord]);
 
         $(selector).empty();
         svg = d3.select(selector).append("svg")
@@ -102,16 +91,27 @@ function makeCoSystem() {
 
                 return "translate(" + x + "," + y + ")"
             })
-            .attr("id", function (d,i) {
-                return "c_"+i;
-            })
+            .attr("id", function (d,i) {return "c_"+i;})
             .style("fill", function(d) {
                 if (d.onBoundary === false)     return "#000000";
                 else                            return "#ff0000";
             })
             .style("cursor", "pointer");
         sample.exit().remove();
-        cb();
+
+        drawline({x:0, y:0}, {x:100, y:200})
+    }
+    
+    function drawline(point1, point2) {
+        d3.select('svg')
+            .append('line')
+            .attr({
+                x1: scaleX(point1.x),
+                y1: scaleX(point1.y),
+                x2: scaleX(point2.x),
+                y2: scaleX(point2.y),
+                stroke: '#000'
+            });
     }
 
     return {
