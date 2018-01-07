@@ -13,8 +13,6 @@ function makeCoSystem() {
     var minY;
     var maxX;
     var maxY;
-    var xRange = 0;
-    var yRange = 0;
     //variable to check whether there should be a negative and postive x-axis
     var bPositiveAndNegativeXAxis;
     //variable to check whether there should be a negative and postive y-axis
@@ -22,13 +20,15 @@ function makeCoSystem() {
     var relWidth;
     var relHeight;
 
+    var rectLength;
+
     const MIN = -2147483648;
     const MAX = 2147483647;
 
     var points;
     var sample;
 
-    var radius = 5;
+    var radius = 0.8;
 
 
     function init(sl) {
@@ -39,17 +39,14 @@ function makeCoSystem() {
     function loadPointsGraph(txtString, el){
         element2 = el;
         el.hide();
-
-        // var arr = txtString.split(/\n| \n|\n |\\s+/);
         var arr = txtString.split(/\s+/);
-        ///(?:\n| )+/
-        // (?:,| )+/
         points = [];
 
         maxX = MIN;
         maxY = MIN;
         minX = MAX;
         minY = MAX;
+
         for (var i = 0; i<arr.length-1; i+=2){
             var point = {x: arr[i], y: arr[i+1], onBoundary: false};
             points.push(point);
@@ -63,34 +60,26 @@ function makeCoSystem() {
     }
 
     function createCanvas(cb) {
-        // var canvasElement = $("<div/>");
-
-        bPositiveAndNegativeXAxis = (maxX*minX < 0);
-        bPositiveAndNegativeYAxis = (maxY*minY < 0);
-
-        if(bPositiveAndNegativeXAxis)   xRange = maxX + Math.abs(minX);
-        else                            xRange = Math.abs(maxX - minX);
-
-        if(bPositiveAndNegativeYAxis)   yRange = maxY + Math.abs(minY);
-        else                            yRange = Math.abs(maxY - minY);
-
 
         relWidth = (window.innerWidth ? window.innerWidth : $(window).width())/10*9;
         relHeight = (window.innerHeight ? window.innerHeight : $(window).height())/10*9;
-        $('#status').text(relWidth);
+        rectLength = Math.min(relHeight, relWidth);
+
+        //$('#status').text(relWidth);
 
         $(selector).empty();
         svg = d3.select(selector).append("svg")
             .attr("id", "svg")
-            .attr("width", relHeight)
-            .attr("height", relHeight)
+            .attr("width", rectLength+"")
+            .attr("height", rectLength+"")
+            // .attr("viewBox", "0 0 " + rectLength + " " + rectLength)
         ;
         
         var borderPath = svg.append("rect")
             .attr("x", 0)
             .attr("y", 0)
-            .attr("width", relHeight)
-            .attr("height", relHeight)
+            .attr("width", "100%")
+            .attr("height", "100%")
             .style("stroke", "#373737")
             .style("fill", "none")
             .style("stroke-width", 1)
@@ -102,31 +91,32 @@ function makeCoSystem() {
 
     function updateGraph() {
         sample = sample.data(points);
+        bPositiveAndNegativeXAxis = (maxX*minX < 0);
+        bPositiveAndNegativeYAxis = (maxY*minY < 0);
 
-        var min = Math.min(minX, minY);
-        var max;
+        var xRange = 0;
+        var yRange = 0;
+        if(bPositiveAndNegativeXAxis)   xRange = maxX + Math.abs(minX);
+        else                            xRange = Math.abs(maxX - minX);
+
+        if(bPositiveAndNegativeYAxis)   yRange = maxY + Math.abs(minY);
+        else                            yRange = Math.abs(maxY - minY);
         var maxRange = Math.max(xRange, yRange);
-
-
 
         var scaleX = d3.scale.linear()
             .domain([minX, minX+maxRange])
-            .range([20, relHeight-20]);
+            .range([10, rectLength-10]);
 
         var scaleY = d3.scale.linear()
             .domain([minY, minY+maxRange])
-            .range([20, relHeight-20]);
+            .range([10, rectLength-10]);
 
         sample.enter().append("circle")
             .attr("class", "sample-node")
-            .attr("r", radius)
+            .attr("r", radius+"%")
             .attr("transform", function(d) {
-                var x;
-                var y;
-                if(bPositiveAndNegativeXAxis)   x = scaleX(parseInt(d.x));
-                else                            x = scaleX(parseInt(d.x));
-                if(bPositiveAndNegativeYAxis)   y = scaleY(parseInt(d.y));
-                else                            y = scaleY(parseInt(d.y));
+                var x=scaleX(parseInt(d.x));
+                var y=scaleY(parseInt(d.y));
 
                 return "translate(" + x + "," + y + ")"
             })
