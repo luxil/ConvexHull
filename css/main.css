@@ -24,3 +24,8 @@ body{
     margin: 10px auto;
     vertical-align: middle;
 }
+
+svg{
+    display: block;
+    margin: auto;
+}

@@ -12,8 +12,7 @@ function init(){
 }
 
 function loadCoSystem(txtString) {
-    console.log("test");
-    $('#status').text(txtString);
+    coSystem.loadPointsGraph(txtString);
 }
 
 
