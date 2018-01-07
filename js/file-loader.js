@@ -97,7 +97,7 @@ function makeFileLoader() {
 
                     reader.onload = function(e) {
                         fileDisplayArea.innerText = typeof(reader.result);
-                        callback(reader.result);
+                        callback(reader.result, element);
                     }
 
                     reader.readAsText(file);

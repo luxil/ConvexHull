@@ -11,8 +11,8 @@ function init(){
     coSystem.init('#coSystem');
 }
 
-function loadCoSystem(txtString) {
-    coSystem.loadPointsGraph(txtString);
+function loadCoSystem(txtString, element) {
+    coSystem.loadPointsGraph(txtString, element);
 }
 
 

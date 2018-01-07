@@ -4,6 +4,7 @@ var coSystem= makeCoSystem();
 function makeCoSystem() {
 
     var element;
+    var element2;
     var selector;
     var svg;
 
@@ -12,10 +13,17 @@ function makeCoSystem() {
     var minY;
     var maxX;
     var maxY;
+    var xRange = 0;
+    var yRange = 0;
     //variable to check whether there should be a negative and postive x-axis
     var bPositiveAndNegativeXAxis;
     //variable to check whether there should be a negative and postive y-axis
     var bPositiveAndNegativeYAxis;
+    var relWidth;
+    var relHeight;
+
+    const MIN = -2147483648;
+    const MAX = 2147483647;
 
     var points;
     var sample;
@@ -28,17 +36,22 @@ function makeCoSystem() {
         selector = sl;
     }
 
-    function loadPointsGraph(txtString){
-        //$('#status').text(txtString);
-        var arr = txtString.split(" ");
+    function loadPointsGraph(txtString, el){
+        element2 = el;
+        el.hide();
+
+        // var arr = txtString.split(/\n| \n|\n |\\s+/);
+        var arr = txtString.split(/\s+/);
+        ///(?:\n| )+/
+        // (?:,| )+/
         points = [];
 
-        maxX = -2147483648;
-        maxY = -2147483648;
-        minX = 2147483647;
-        minY = 2147483647;
-        for (var i = 0; i<arr.length; i+=2){
-            var point = {x: arr[i], y: arr[i+1], onBoundary: false}
+        maxX = MIN;
+        maxY = MIN;
+        minX = MAX;
+        minY = MAX;
+        for (var i = 0; i<arr.length-1; i+=2){
+            var point = {x: arr[i], y: arr[i+1], onBoundary: false};
             points.push(point);
             maxX = Math.max(maxX, arr[i]);
             maxY = Math.max(maxY, arr[i+1]);
@@ -50,36 +63,34 @@ function makeCoSystem() {
     }
 
     function createCanvas(cb) {
-        var canvasElement = $("<div/>");
-        var width = 0;
-        var height = 0;
+        // var canvasElement = $("<div/>");
 
         bPositiveAndNegativeXAxis = (maxX*minX < 0);
         bPositiveAndNegativeYAxis = (maxY*minY < 0);
 
-        if(bPositiveAndNegativeXAxis)   width = maxX + Math.abs(minX);
-        else                            width = Math.abs(maxX + minX);
+        if(bPositiveAndNegativeXAxis)   xRange = maxX + Math.abs(minX);
+        else                            xRange = Math.abs(maxX - minX);
+
+        if(bPositiveAndNegativeYAxis)   yRange = maxY + Math.abs(minY);
+        else                            yRange = Math.abs(maxY - minY);
 
 
-        if(bPositiveAndNegativeYAxis)   height = maxY + Math.abs(minY);
-        else                            height = Math.abs(maxY + minY);
-
-
-        var relWidth = window.innerWidth ? window.innerWidth : $(window).width();
-        var relHeight = window.innerHeight ? window.innerHeight : $(window).height();
+        relWidth = (window.innerWidth ? window.innerWidth : $(window).width())/10*9;
+        relHeight = (window.innerHeight ? window.innerHeight : $(window).height())/10*9;
         $('#status').text(relWidth);
 
+        $(selector).empty();
         svg = d3.select(selector).append("svg")
             .attr("id", "svg")
-            .attr("width", relWidth/4*3)
-            .attr("height", relHeight/4*3)
+            .attr("width", relHeight)
+            .attr("height", relHeight)
         ;
         
         var borderPath = svg.append("rect")
             .attr("x", 0)
             .attr("y", 0)
-            .attr("width", relWidth/4*3)
-            .attr("height", relHeight/4*3)
+            .attr("width", relHeight)
+            .attr("height", relHeight)
             .style("stroke", "#373737")
             .style("fill", "none")
             .style("stroke-width", 1)
@@ -87,22 +98,35 @@ function makeCoSystem() {
 
         sample = svg.selectAll(".sample-node");
         cb();
-
-        return canvasElement;
     }
-    
+
     function updateGraph() {
         sample = sample.data(points);
+
+        var min = Math.min(minX, minY);
+        var max;
+        var maxRange = Math.max(xRange, yRange);
+
+
+
+        var scaleX = d3.scale.linear()
+            .domain([minX, minX+maxRange])
+            .range([20, relHeight-20]);
+
+        var scaleY = d3.scale.linear()
+            .domain([minY, minY+maxRange])
+            .range([20, relHeight-20]);
+
         sample.enter().append("circle")
             .attr("class", "sample-node")
             .attr("r", radius)
             .attr("transform", function(d) {
                 var x;
                 var y;
-                if(bPositiveAndNegativeXAxis)   x = parseInt(d.x) + Math.abs(minX);
-                else                            x = d.x;
-                if(bPositiveAndNegativeYAxis)   y = parseInt(d.y) + Math.abs(minY);
-                else                            y = d.y;
+                if(bPositiveAndNegativeXAxis)   x = scaleX(parseInt(d.x));
+                else                            x = scaleX(parseInt(d.x));
+                if(bPositiveAndNegativeYAxis)   y = scaleY(parseInt(d.y));
+                else                            y = scaleY(parseInt(d.y));
 
                 return "translate(" + x + "," + y + ")"
             })
@@ -117,18 +141,12 @@ function makeCoSystem() {
         sample.exit().remove();
     }
 
-
-    var scaleX = d3.scale.linear()
-        .domain([10, 130])
-        .range([0, 960]);
-
-
     return {
         init: function (selector) {
             init(selector);
         },
-        loadPointsGraph: function (txtString) {
-            loadPointsGraph(txtString);
+        loadPointsGraph: function (txtString, element) {
+            loadPointsGraph(txtString, element);
         }
     }
 }
