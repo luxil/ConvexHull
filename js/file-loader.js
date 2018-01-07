@@ -4,9 +4,9 @@ var fileLoader = makeFileLoader();
 function makeFileLoader() {
     var element;
     var callback;
+    var header;
 
     function init(selector, cb) {
-        test = selector;
         callback = cb;
         element = $(selector);
         element.append(createHeader());
@@ -14,14 +14,16 @@ function makeFileLoader() {
     }
 
     function createHeader() {
-        var header = $('<div/>');
+        header = $('<div/>',{
+            id: "header"
+        });
         $('<h1/>', {
                 text: 'Convex Hull Demo'
         }).appendTo(header);
 
         $('<div/>', {
             id: 'status',
-            text: 'Upload a file'
+            text: 'Put file into the browser'
         }).appendTo(header);
 
         return header;
@@ -36,7 +38,6 @@ function makeFileLoader() {
 
         $('<span/>', {
             class: 'glyphicon glyphicon-cloud-upload cloud',
-            text: 'Drop file here or click to browse',
             id: 'browse'
         }).appendTo(dropdiv);
 
@@ -49,9 +50,6 @@ function makeFileLoader() {
             class: 'msg-drop'
         }).appendTo(dropdiv);
 
-        $('<div/>', {
-            id: 'list'
-        }).appendTo(divCon);
 
         loadDragAndDropFunctions();
 
@@ -97,7 +95,7 @@ function makeFileLoader() {
 
                     reader.onload = function(e) {
                         fileDisplayArea.innerText = typeof(reader.result);
-                        callback(reader.result, element);
+                        callback(reader.result, header);
                     }
 
                     reader.readAsText(file);

@@ -17,10 +17,8 @@ function makeCoSystem() {
     var bPositiveAndNegativeXAxis;
     //variable to check whether there should be a negative and postive y-axis
     var bPositiveAndNegativeYAxis;
-    var relWidth;
-    var relHeight;
-
     var rectLength;
+    var maxRange;
 
     const MIN = -2147483648;
     const MAX = 2147483647;
@@ -28,7 +26,7 @@ function makeCoSystem() {
     var points;
     var sample;
 
-    var radius = 0.8;
+    var radius = 0.6;
 
 
     function init(sl) {
@@ -60,37 +58,10 @@ function makeCoSystem() {
     }
 
     function createCanvas(cb) {
-
-        relWidth = (window.innerWidth ? window.innerWidth : $(window).width())/10*9;
-        relHeight = (window.innerHeight ? window.innerHeight : $(window).height())/10*9;
+        var relWidth = (window.innerWidth ? window.innerWidth : $(window).width())/10*9;
+        var relHeight = (window.innerHeight ? window.innerHeight : $(window).height())/10*9;
         rectLength = Math.min(relHeight, relWidth);
 
-        //$('#status').text(relWidth);
-
-        $(selector).empty();
-        svg = d3.select(selector).append("svg")
-            .attr("id", "svg")
-            .attr("width", rectLength+"")
-            .attr("height", rectLength+"")
-            // .attr("viewBox", "0 0 " + rectLength + " " + rectLength)
-        ;
-        
-        var borderPath = svg.append("rect")
-            .attr("x", 0)
-            .attr("y", 0)
-            .attr("width", "100%")
-            .attr("height", "100%")
-            .style("stroke", "#373737")
-            .style("fill", "none")
-            .style("stroke-width", 1)
-        ;
-
-        sample = svg.selectAll(".sample-node");
-        cb();
-    }
-
-    function updateGraph() {
-        sample = sample.data(points);
         bPositiveAndNegativeXAxis = (maxX*minX < 0);
         bPositiveAndNegativeYAxis = (maxY*minY < 0);
 
@@ -101,15 +72,51 @@ function makeCoSystem() {
 
         if(bPositiveAndNegativeYAxis)   yRange = maxY + Math.abs(minY);
         else                            yRange = Math.abs(maxY - minY);
-        var maxRange = Math.max(xRange, yRange);
+        maxRange = Math.max(xRange, yRange);
+
 
         var scaleX = d3.scale.linear()
             .domain([minX, minX+maxRange])
-            .range([10, rectLength-10]);
+            .range([0, rectLength]);
 
         var scaleY = d3.scale.linear()
             .domain([minY, minY+maxRange])
-            .range([10, rectLength-10]);
+            .range([0, rectLength]);
+
+        $(selector).empty();
+        svg = d3.select(selector).append("svg")
+            .attr("id", "svg")
+            .style("max-height", relHeight*0.95)
+            .style("max-width", relWidth*0.95)
+            // .attr("width", scaleX(xRange)*1.1)
+            // .attr("height", scaleY(yRange)*1.1)
+            .attr("viewBox", "0 0 " + (scaleX(maxX)) + " " + (scaleY(maxY)))
+        ;
+        
+        var borderPath = svg.append("rect")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", 100 + "%")
+            .attr("height", 100 + "%")
+            .style("stroke", "#373737")
+            .style("fill", "none")
+            .style("stroke-width", 1)
+        ;
+
+        sample = svg.selectAll(".sample-node");
+        cb();
+    }
+
+    function updateGraph() {
+        var scaleX = d3.scale.linear()
+            .domain([minX, minX+maxRange])
+            .range([0, rectLength]);
+
+        var scaleY = d3.scale.linear()
+            .domain([minY, minY+maxRange])
+            .range([0, rectLength]);
+
+        sample = sample.data(points);
 
         sample.enter().append("circle")
             .attr("class", "sample-node")
