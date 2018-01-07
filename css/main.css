@@ -15,14 +15,15 @@
 
 #fileBox{
     display:none;
-}
-
-body{
     /*border: 1px dashed #ccc;*/
     width: 450px;
     min-height: 50px;
     margin: 10px auto;
     vertical-align: middle;
+}
+
+body{
+
 }
 
 svg{
