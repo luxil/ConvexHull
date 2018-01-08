@@ -5,6 +5,7 @@ function makeCoSystem() {
 
     var element;
     var element2;
+    var callback;
     var selector;
     var svg;
 
@@ -20,12 +21,12 @@ function makeCoSystem() {
     var minY;
     var maxX;
     var maxY;
-
     var scaleX;
     var scaleY;
 
-    function init(sl) {
+    function init(sl, cb) {
         element = $(sl);
+        callback = cb;
         selector = sl;
     }
 
@@ -41,7 +42,7 @@ function makeCoSystem() {
         minY = MAX;
 
         for (var i = 0; i<arr.length-1; i+=2){
-            var point = {x: arr[i], y: arr[i+1], onBoundary: false};
+            var point = {index: i, x: arr[i], y: arr[i+1], onBoundary: false};
             points.push(point);
             maxX = Math.max(maxX, arr[i]);
             maxY = Math.max(maxY, arr[i+1]);
@@ -62,14 +63,9 @@ function makeCoSystem() {
         var rectLength = Math.min(relHeight, relWidth);
         var bord = rectLength*0.1;
 
-        var xRange = 0;
-        if(bPositiveAndNegativeXAxis)   xRange = maxX + Math.abs(minX);
-        else                            xRange = Math.abs(maxX - minX);
-        var yRange = 0;
-        if(bPositiveAndNegativeYAxis)   yRange = maxY + Math.abs(minY);
-        else                            yRange = Math.abs(maxY - minY);
+        var xRange = (bPositiveAndNegativeXAxis ? maxX + Math.abs(minX) : Math.abs(maxX - minX));
+        var yRange = (bPositiveAndNegativeYAxis ? maxY + Math.abs(minY) : Math.abs(maxY - minY));
         var maxRange = Math.max(xRange, yRange);
-
         scaleX = d3.scale.linear().domain([minX, minX+maxRange]).range([bord, rectLength-bord]);
         scaleY = d3.scale.linear().domain([minY, minY+maxRange]).range([bord, rectLength-bord]);
 
@@ -99,10 +95,16 @@ function makeCoSystem() {
             .style("cursor", "pointer");
         sample.exit().remove();
 
-        drawline({x:0, y:0}, {x:100, y:200})
+        drawLine({x:0, y:0}, {x:100, y:200})
+
+        var data = {
+            points: points,
+            minY: minY
+        }
+        callback(data);
     }
     
-    function drawline(point1, point2) {
+    function drawLine(point1, point2) {
         d3.select('svg')
             .append('line')
             .attr({
@@ -115,8 +117,8 @@ function makeCoSystem() {
     }
 
     return {
-        init: function (selector) {
-            init(selector);
+        init: function (selector, callback) {
+            init(selector, callback);
         },
         loadPointsGraph: function (txtString, element) {
             loadPointsGraph(txtString, element);
