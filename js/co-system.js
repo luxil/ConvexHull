@@ -24,6 +24,10 @@ function makeCoSystem() {
     var scaleX;
     var scaleY;
 
+    //different svgLayers to place circles on top (over the lines)
+    var svgLayer1;
+    var svgLayer2;
+
     function init(sl, cb) {
         element = $(sl);
         callback = cb;
@@ -41,13 +45,15 @@ function makeCoSystem() {
         minX = MAX;
         minY = MAX;
 
+        var index = 0;
         for (var i = 0; i<arr.length-1; i+=2){
-            var point = {index: i, x: arr[i], y: arr[i+1], onBoundary: false};
+            var point = {index: index, x: parseInt(arr[i]), y: parseInt(arr[i+1]), onBoundary: false};
             points.push(point);
             maxX = Math.max(maxX, arr[i]);
             maxY = Math.max(maxY, arr[i+1]);
             minX = Math.min(minX, arr[i]);
             minY = Math.min(minY, arr[i+1]);
+            index++;
         }
 
         createCanvas();
@@ -75,7 +81,10 @@ function makeCoSystem() {
             .attr("viewBox", "0 0 " + (scaleX(maxX)+bord) + " " + (scaleY(maxY)+bord))
         ;
 
-        sample = svg.selectAll(".sample-node");
+        svgLayer1 = svg.append('g');
+        svgLayer2 = svg.append('g');
+
+        sample = svgLayer2.selectAll(".sample-node");
         sample = sample.data(points);
 
         sample.enter().append("circle")
@@ -95,25 +104,55 @@ function makeCoSystem() {
             .style("cursor", "pointer");
         sample.exit().remove();
 
-        drawLine({x:0, y:0}, {x:100, y:200})
-
         var data = {
             points: points,
             minY: minY
-        }
+        };
+
         callback(data);
+
     }
-    
-    function drawLine(point1, point2) {
-        d3.select('svg')
+
+    function drawLineWithIndex(i1, i2) {
+        svgLayer1
             .append('line')
             .attr({
-                x1: scaleX(point1.x),
-                y1: scaleX(point1.y),
-                x2: scaleX(point2.x),
-                y2: scaleX(point2.y),
+                x1: d3.transform(d3.select("#c_"+i1.toString()).attr("transform")).translate[0],
+                y1: d3.transform(d3.select("#c_"+i1.toString()).attr("transform")).translate[1],
+                x2: d3.transform(d3.select("#c_"+i2.toString()).attr("transform")).translate[0],
+                y2: d3.transform(d3.select("#c_"+i2.toString()).attr("transform")).translate[1],
                 stroke: '#000'
             });
+    }
+
+    function markPointWithIndex(index) {
+        d3.select("#c_" + index)
+            .attr({r: radius*1.4+"%"})
+            .style("fill", "red");
+        ;
+        svg.select("#nodes").selectAll(".node");
+    }
+
+    function selectPointWithIndex(index) {
+        d3.select("#c_" + index)
+            .attr({r: radius*1.4+"%"})
+            .style("fill", "yellow");
+        ;
+        svg.select("#nodes").selectAll(".node");
+    }
+
+    function drawConvexHull(stack) {
+        for (var i = 0; i < stack.length-1; i++){
+            drawLineWithIndex(stack[i].index, stack[i+1].index);
+        }
+        drawLineWithIndex(stack[stack.length-1].index, stack[0].index);
+
+        for (var i = 0; i < stack.length-1; i++){
+            setTimeout(function(y) {
+                markPointWithIndex(stack[y].index);
+                selectPointWithIndex(stack[y+1].index);
+            }, i*500, i);
+        }
     }
 
     return {
@@ -122,6 +161,9 @@ function makeCoSystem() {
         },
         loadPointsGraph: function (txtString, element) {
             loadPointsGraph(txtString, element);
+        },
+        drawConvexHull: function (stack) {
+            drawConvexHull(stack);
         }
     }
 }
