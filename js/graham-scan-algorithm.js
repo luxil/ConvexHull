@@ -139,7 +139,7 @@ function makeGrahamScanAlgorithm() {
             stack.push(p_i);
         }
 
-        coSystem.drawConvexHull(stack);
+        coSystem.drawConvexHull(stack, calculateAreaOfPolygon(stack));
     }
 
     function ccw(p1, p2, p3) {

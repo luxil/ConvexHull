@@ -74,8 +74,14 @@ function makeCoSystem() {
         var maxRange = Math.max(xRange, yRange);
         scaleX = d3.scale.linear().domain([minX, minX+maxRange]).range([bord, rectLength-bord]);
         scaleY = d3.scale.linear().domain([minY, minY+maxRange]).range([bord, rectLength-bord]);
-
+		
         $(selector).empty();
+
+		var dropdiv = $('<div/>', {
+            id: 'areaInfo',
+			text: 'TEST'
+        }).appendTo(element);
+		
         svg = d3.select(selector).append("svg")
             .attr("id", "svg")
             .attr("viewBox", "0 0 " + (scaleX(maxX)+bord) + " " + (scaleY(maxY)+bord))
@@ -141,7 +147,7 @@ function makeCoSystem() {
         svg.select("#nodes").selectAll(".node");
     }
 
-    function drawConvexHull(stack) {
+    function drawConvexHull(stack, _area) {
         for (var i = 0; i < stack.length-1; i++){
             drawLineWithIndex(stack[i].index, stack[i+1].index);
         }
@@ -153,6 +159,9 @@ function makeCoSystem() {
                 selectPointWithIndex(stack[y+1].index);
             }, i*500, i);
         }
+		
+		$('#areaInfo').text(_area);
+		
     }
 
     return {
@@ -162,8 +171,8 @@ function makeCoSystem() {
         loadPointsGraph: function (txtString, element) {
             loadPointsGraph(txtString, element);
         },
-        drawConvexHull: function (stack) {
-            drawConvexHull(stack);
+        drawConvexHull: function (stack, _area) {
+            drawConvexHull(stack, _area);
         }
     }
 }
