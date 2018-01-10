@@ -28,6 +28,9 @@ function makeCoSystem() {
     var svgLayer1;
     var svgLayer2;
 
+    var timer;
+    var loop;
+
     function init(sl, cb) {
         element = $(sl);
         callback = cb;
@@ -55,7 +58,6 @@ function makeCoSystem() {
             minY = Math.min(minY, arr[i+1]);
             index++;
         }
-
         createCanvas();
     }
 
@@ -74,10 +76,11 @@ function makeCoSystem() {
         var maxRange = Math.max(xRange, yRange);
         scaleX = d3.scale.linear().domain([minX, minX+maxRange]).range([bord, rectLength-bord]);
         scaleY = d3.scale.linear().domain([minY, minY+maxRange]).range([bord, rectLength-bord]);
-		
-        $(selector).empty();
 
-		var dropdiv = $('<div/>', {
+        element.empty();
+        clearTimeout(timer);
+
+		$('<div/>', {
             id: 'areaInfo',
 			text: 'TEST'
         }).appendTo(element);
@@ -135,7 +138,6 @@ function makeCoSystem() {
         d3.select("#c_" + index)
             .attr({r: radius*1.4+"%"})
             .style("fill", "red");
-        ;
         svg.select("#nodes").selectAll(".node");
     }
 
@@ -143,7 +145,6 @@ function makeCoSystem() {
         d3.select("#c_" + index)
             .attr({r: radius*1.4+"%"})
             .style("fill", "yellow");
-        ;
         svg.select("#nodes").selectAll(".node");
     }
 
@@ -153,16 +154,55 @@ function makeCoSystem() {
         }
         drawLineWithIndex(stack[stack.length-1].index, stack[0].index);
 
-        for (var i = 0; i < stack.length-1; i++){
-            setTimeout(function(y) {
-                markPointWithIndex(stack[y].index);
-                selectPointWithIndex(stack[y+1].index);
-            }, i*500, i);
+        function markPoints() {
+            // for (var i = 0; i <= stack.length; i++){
+            //     markPointsTimer = setTimeout(function(y) {
+            //         if(y< stack.length)
+            //             selectPointWithIndex(stack[y].index);
+            //         if(y>0)
+            //             markPointWithIndex(stack[y-1].index);
+            //         if(y===stack.length){
+            //             if(!bStop) {
+            //                 markPoints();
+            //             }
+            //         }
+            //         if(bStop) {
+            //             clearTimeout(markPointsTimer);
+            //             markPointsTimer = 0;
+            //             bStop = false;
+            //         }
+            //     }, i*500+500, i);
+            //     if(bStop) {
+            //         clearTimeout(markPointsTimer);
+            //         markPointsTimer = 0;
+            //         bStop = false;
+            //     }
+            // }
         }
-		
 		$('#areaInfo').text(_area);
-		
+        markPoints();
+
+        var y = 0;
+        loop = function () {
+            if(y <= stack.length) {
+                if (y < stack.length)
+                    selectPointWithIndex(stack[y].index);
+                if (y > 0)
+                    markPointWithIndex(stack[y - 1].index);
+                if(y===stack.length){
+                    selectPointWithIndex(stack[0].index);
+                    y=0;
+                }
+                y++;
+                timer= setTimeout(function(){
+                    loop();
+                }, 500);
+            }else{
+            }
+        };
+        loop();
     }
+
 
     return {
         init: function (selector, callback) {

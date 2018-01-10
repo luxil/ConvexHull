@@ -28,14 +28,18 @@ function makeGrahamScanAlgorithm() {
     var points;
     var p0;
     var stack;
+    var callback;
+
+    function init(cb) {
+        callback = cb;
+    }
 
     function start(data) {
         points = data.points;
+        stack = [];
         indexOfLowestY();
         points = arrSortedByAngle();
-        calculateConvexHullStack();
-        console.log(calculateAreaOfPolygon(stack));
-
+        calcConvHull();
     }
 
     //Find p0 in array with minimum y-coordinate (and minimum x-coordinate if there are ties).
@@ -66,6 +70,7 @@ function makeGrahamScanAlgorithm() {
         var reformattedArray = points.map(function (obj) {
             //Substract p0 from every point of arr (p0 should be the zero point)
             //and save to the variables tempX and tempY
+            //you need them to calculate the angle and the distance
             var tempX = obj.x - p0.x;
             var tempY = obj.y - p0.y;
             return {
@@ -76,6 +81,7 @@ function makeGrahamScanAlgorithm() {
                 sqDist: getSquareDistance(tempX, tempY)
             };
         });
+        //now sort by angle
         reformattedArray.sort(function (a, b) {
             if (a.angle > b.angle)
                 return 1;
@@ -128,7 +134,7 @@ function makeGrahamScanAlgorithm() {
      PUSH (S, pi)
      return S
      */
-    function calculateConvexHullStack() {
+    function calcConvHull() {
         stack = [points[0], points[1], points[2]];
 
         for (var i = 3; i < points.length; i++) {
@@ -139,27 +145,33 @@ function makeGrahamScanAlgorithm() {
             stack.push(p_i);
         }
 
-        coSystem.drawConvexHull(stack, calculateAreaOfPolygon(stack));
+        callback(stack, calculateAreaOfPolygon(stack));
     }
 
     function ccw(p1, p2, p3) {
         return (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x)
     }
 
+
+    //calculate area of the polygon with the Gauss's area formula
+    //https://de.wikipedia.org/wiki/Gau%C3%9Fsche_Trapezformel
     function calculateAreaOfPolygon(arr) {
-        if (arr== null) return 0.0;     // test whether the array is empty
+        if (arr== null) return 0;     // test whether the array is empty
         var n = arr.length;             // number vertices of the Polygon
-        if (n < 3) return 0.0;          // the Polygon should have at least three points
+        if (n < 3) return 0;          // the Polygon should have at least three points
         var area = 0.0;
 
-        for (var i = 0; i < n; i++) {                // Schleife zwecks Summenbildung
+        for (var i = 0; i < n; i++) {
             area += (arr[i].y + arr[(i+1) % n].y) * (arr[i].x - arr[(i+1) % n].x);
         }
 
-        return (Math.abs(area / 2.0));                    // Flaecheninhalt zurueckliefern
+        return (Math.abs(area / 2.0));
     }
 
     return {
+        init: function (cb) {
+            init(cb);
+        },
         start: function (data) {
             start(data);
         }

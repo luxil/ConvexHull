@@ -7,16 +7,21 @@ $(function() {
 });
 
 function init(){
-    fileLoader.init('#fileLoader', loadCoSystem);
-    coSystem.init('#coSystem', startAlgorithm);
+    fileLoader.init('#fileLoader', csLoadCoSystem);
+    coSystem.init('#coSystem', gsaStartAlgorithm);
+    grahamScanAlgorithm.init(csDrawConvexHull);
 }
 
-function loadCoSystem(txtString, element) {
+function csLoadCoSystem(txtString, element) {
     coSystem.loadPointsGraph(txtString, element);
 }
 
-function startAlgorithm(data) {
+function gsaStartAlgorithm(data) {
     grahamScanAlgorithm.start(data);
+}
+
+function csDrawConvexHull(stack, area){
+    coSystem.drawConvexHull(stack, area);
 }
 
 
