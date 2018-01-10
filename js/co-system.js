@@ -136,7 +136,7 @@ function makeCoSystem() {
     //mark a point with the given index number
     function markPointWithIndex(index) {
         d3.select("#c_" + index)
-            .attr({r: radius*1.4+"%"})
+            .attr({r: radius+"%"})
             .style("fill", "red");
         svg.select("#nodes").selectAll(".node");
     }
@@ -144,8 +144,8 @@ function makeCoSystem() {
     //select a point with the given index number
     function selectPointWithIndex(index) {
         d3.select("#c_" + index)
-            .attr({r: radius*1.4+"%"})
-            .style("fill", "yellow");
+            .attr({r: radius*1.8+"%"})
+            .style("fill", "#c3b52c");
         svg.select("#nodes").selectAll(".node");
     }
 
