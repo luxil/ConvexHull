@@ -7,7 +7,11 @@ function makeCoSystem() {
     var element2;
     var callback;
     var selector;
+
+    //different svgLayers to place circles on top (over the lines)
     var svg;
+    var svgLayer1;
+    var svgLayer2;
 
     const MIN = -2147483648;
     const MAX = 2147483647;
@@ -16,7 +20,7 @@ function makeCoSystem() {
     var points;
     var sample;
 
-    //variables for a flexible coordinate system
+    //variables for a responsive coordinate system
     var minX;
     var minY;
     var maxX;
@@ -24,12 +28,8 @@ function makeCoSystem() {
     var scaleX;
     var scaleY;
 
-    //different svgLayers to place circles on top (over the lines)
-    var svgLayer1;
-    var svgLayer2;
-
     var timer;
-    var loop;
+    var loopMarkPoints;
 
     function init(sl, cb) {
         element = $(sl);
@@ -50,7 +50,7 @@ function makeCoSystem() {
 
         var index = 0;
         for (var i = 0; i<arr.length-1; i+=2){
-            var point = {index: index, x: parseInt(arr[i]), y: parseInt(arr[i+1]), onBoundary: false};
+            var point = {index: index, x: parseInt(arr[i]), y: parseInt(arr[i+1])};
             points.push(point);
             maxX = Math.max(maxX, arr[i]);
             maxY = Math.max(maxY, arr[i+1]);
@@ -61,10 +61,11 @@ function makeCoSystem() {
         createCanvas();
     }
 
+    //create svg with all points
     function createCanvas() {
-        //variable to check whether there should be a negative and postive x-axis
+        //variable to check whether there should be a negative and positive x-axis
         var bPositiveAndNegativeXAxis = (maxX*minX < 0);
-        //variable to check whether there should be a negative and postive y-axis
+        //variable to check whether there should be a negative and positive y-axis
         var bPositiveAndNegativeYAxis = (maxY*minY < 0);
         var relWidth = (window.innerWidth ? window.innerWidth : $(window).width())/10*9;
         var relHeight = (window.innerHeight ? window.innerHeight : $(window).height())/10*9;
@@ -82,7 +83,7 @@ function makeCoSystem() {
 
 		$('<div/>', {
             id: 'areaInfo',
-			text: 'TEST'
+			text: ''
         }).appendTo(element);
 		
         svg = d3.select(selector).append("svg")
@@ -106,10 +107,7 @@ function makeCoSystem() {
                 return "translate(" + x + "," + y + ")"
             })
             .attr("id", function (d,i) {return "c_"+i;})
-            .style("fill", function(d) {
-                if (d.onBoundary === false)     return "#000000";
-                else                            return "#ff0000";
-            })
+            .style("fill", "#000000")
             .style("cursor", "pointer");
         sample.exit().remove();
 
@@ -122,6 +120,7 @@ function makeCoSystem() {
 
     }
 
+    //draw a line between a point with a index i1 and a point with a index i2
     function drawLineWithIndex(i1, i2) {
         svgLayer1
             .append('line')
@@ -134,6 +133,7 @@ function makeCoSystem() {
             });
     }
 
+    //mark a point with the given index number
     function markPointWithIndex(index) {
         d3.select("#c_" + index)
             .attr({r: radius*1.4+"%"})
@@ -141,6 +141,7 @@ function makeCoSystem() {
         svg.select("#nodes").selectAll(".node");
     }
 
+    //select a point with the given index number
     function selectPointWithIndex(index) {
         d3.select("#c_" + index)
             .attr({r: radius*1.4+"%"})
@@ -148,42 +149,17 @@ function makeCoSystem() {
         svg.select("#nodes").selectAll(".node");
     }
 
+    //draw convex hull
     function drawConvexHull(stack, _area) {
         for (var i = 0; i < stack.length-1; i++){
             drawLineWithIndex(stack[i].index, stack[i+1].index);
         }
         drawLineWithIndex(stack[stack.length-1].index, stack[0].index);
 
-        function markPoints() {
-            // for (var i = 0; i <= stack.length; i++){
-            //     markPointsTimer = setTimeout(function(y) {
-            //         if(y< stack.length)
-            //             selectPointWithIndex(stack[y].index);
-            //         if(y>0)
-            //             markPointWithIndex(stack[y-1].index);
-            //         if(y===stack.length){
-            //             if(!bStop) {
-            //                 markPoints();
-            //             }
-            //         }
-            //         if(bStop) {
-            //             clearTimeout(markPointsTimer);
-            //             markPointsTimer = 0;
-            //             bStop = false;
-            //         }
-            //     }, i*500+500, i);
-            //     if(bStop) {
-            //         clearTimeout(markPointsTimer);
-            //         markPointsTimer = 0;
-            //         bStop = false;
-            //     }
-            // }
-        }
 		$('#areaInfo').text(_area);
-        markPoints();
 
         var y = 0;
-        loop = function () {
+        loopMarkPoints = function () {
             if(y <= stack.length) {
                 if (y < stack.length)
                     selectPointWithIndex(stack[y].index);
@@ -194,13 +170,13 @@ function makeCoSystem() {
                     y=0;
                 }
                 y++;
-                timer= setTimeout(function(){
-                    loop();
+                timer = setTimeout(function(){
+                    loopMarkPoints();
                 }, 500);
             }else{
             }
         };
-        loop();
+        loopMarkPoints();
     }
 
 

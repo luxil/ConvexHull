@@ -3,39 +3,27 @@
     position: absolute;
     top: 0px;
     left: 0px;
-    width: 90%;
-    height: 90%;
-    /*margin: 10px auto;*/
-    /*-webkit-border-radius: 4px;*/
-    /*-moz-border-radius: 4px;*/
-    /*border-radius: 4px;*/
-    /*display:flex;*/
+    width: 99%;
+    height: 99%;
     cursor: pointer;
     z-index: 1;
     text-align: center;
-    /*line-height: 50px;*/
-    /*vertical-align: middle;*/
 }
 
 #fileBox{
     display:none;
-    /*border: 1px dashed #ccc;*/
     width: 450px;
     min-height: 50px;
     margin: 10px auto;
     vertical-align: middle;
 }
 
-body{
-
-}
-
 #coSystem{
     position: absolute;
     top: 0px;
     left: 0px;
-    width: 90%;
-    height: 90%;
+    width: 95%;
+    height: 95%;
 }
 
 svg{
@@ -52,5 +40,6 @@ svg{
     left: 50%;
     z-index: 1;
 	order:1;
-	color: green;
+    color: #46c346;
+    font-size: 150%;
 }

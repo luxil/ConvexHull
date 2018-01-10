@@ -6,6 +6,7 @@ function makeFileLoader() {
     var callback;
     var header;
 
+    //initialize fileloader variables
     function init(selector, cb) {
         callback = cb;
         element = $(selector);
@@ -13,6 +14,7 @@ function makeFileLoader() {
         element.append(createDragDropDiv(loadDragAndDropFunctions));
     }
 
+    //create header
     function createHeader() {
         header = $('<div/>',{
             id: "header"
@@ -23,28 +25,19 @@ function makeFileLoader() {
 
         $('<div/>', {
             id: 'status',
-            text: 'Put file into the browser'
+            text: 'Drag and drop file into the browser'
         }).appendTo(header);
 
         return header;
     }
-    
+
+    //create drag and drop field
     function createDragDropDiv(cb) {
         var divCon = $('<div/>');
 
         var dropdiv = $('<div/>', {
             id: 'drop'
         }).appendTo(divCon);
-
-        // $('<span/>', {
-        //     class: 'glyphicon glyphicon-cloud-upload cloud',
-        //     id: 'browse'
-        // }).appendTo(dropdiv);
-
-        // $('<input/>', {
-        //     id: 'fileBox',
-        //     type: 'file'
-        // }).appendTo(divCon);
 
         $('<div/>', {
             class: 'msg-drop'
@@ -55,15 +48,11 @@ function makeFileLoader() {
 
         return divCon;
     }
-    
+
+    //add functions for drag and drop
     function loadDragAndDropFunctions() {
         //code for drag and drop
         //https://www.htmlgoodies.com/html5/javascript/drag-files-into-the-browser-from-the-desktop-HTML5.html
-        // $(window).load(function(){
-        //     // $('#drop').click(function(){
-        //     //     $('#fileBox').trigger('click');
-        //     // });
-        // });
 
         if (window.FileReader) {
             var drop;
@@ -129,14 +118,12 @@ function makeFileLoader() {
                     if(rawFile.status === 200 || rawFile.status == 0)
                     {
                         var allText = rawFile.responseText;
-                        alert(allText);
                     }
                 }
-            }
+            };
             rawFile.send(null);
         }
     }
-
 
     return {
         init: function (selector, callback) {

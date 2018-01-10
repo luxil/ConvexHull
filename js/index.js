@@ -12,6 +12,8 @@ function init(){
     grahamScanAlgorithm.init(csDrawConvexHull);
 }
 
+
+///callback functions for global classes
 function csLoadCoSystem(txtString, element) {
     coSystem.loadPointsGraph(txtString, element);
 }
